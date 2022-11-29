@@ -7,23 +7,22 @@ require_once('OLE.php');
 
 function getDataByName($oleObj, $name)
 {
-	$objArray = array_filter($oleObj -> _list, function($obj) use ($name) {
-		return $name === $obj -> Name;
+	$objArray = array_filter($oleObj->_list, function ($obj) use ($name) {
+		return $name === $obj->Name;
 	});
 
-	if(0 === count($objArray))
-	{
+	if (0 === count($objArray)) {
 		return false;
 	}
 
-	return $oleObj -> getData(array_values($objArray)[0] -> No, 0, -1);
+	return $oleObj->getData(array_values($objArray)[0]->No, 0, -1);
 }
 
 function decrypt($encryptedFilePath, $password, $decryptedFilePath)
 {
 	$oleObj = new OLE();
-	$oleObj -> read($encryptedFilePath);
-	
+	$oleObj->read($encryptedFilePath);
+
 	// parse info from XML
 	{
 		$xmlstr = substr(getDataByName($oleObj, 'EncryptionInfo'), 8);
@@ -31,23 +30,22 @@ function decrypt($encryptedFilePath, $password, $decryptedFilePath)
 
 		$info = [];
 
-		$info['keyDataSalt'] = base64_decode((string) $xml -> keyData -> attributes() -> saltValue);
+		$info['keyDataSalt'] = base64_decode((string) $xml->keyData->attributes()->saltValue);
 
-		$passwordAttributes = $xml -> xpath("//*[@spinCount]")[0] -> attributes();
+		$passwordAttributes = $xml->xpath("//*[@spinCount]")[0]->attributes();
 
-		$info['passwordSalt'] = base64_decode((string) $passwordAttributes -> saltValue);
-		$info['passwordHashAlgorithm'] = (string) $passwordAttributes -> hashAlgorithm;
-		$info['encryptedKeyValue'] = base64_decode((string) $passwordAttributes -> encryptedKeyValue);
-		$info['spinValue'] = (int) $passwordAttributes -> spinCount;
-		$info['passwordKeyBits'] = (int) $passwordAttributes -> keyBits;
+		$info['passwordSalt'] = base64_decode((string) $passwordAttributes->saltValue);
+		$info['passwordHashAlgorithm'] = (string) $passwordAttributes->hashAlgorithm;
+		$info['encryptedKeyValue'] = base64_decode((string) $passwordAttributes->encryptedKeyValue);
+		$info['spinValue'] = (int) $passwordAttributes->spinCount;
+		$info['passwordKeyBits'] = (int) $passwordAttributes->keyBits;
 	}
 
 	// get key
 	{
 		$h = hash($info['passwordHashAlgorithm'], $info['passwordSalt'] . iconv('UTF-8', 'UTF-16LE', $password), true);
 
-		for($i = 0; $i < $info['spinValue']; $i++)
-		{
+		for ($i = 0; $i < $info['spinValue']; $i++) {
 			$h = hash($info['passwordHashAlgorithm'], pack('I', $i) . $h, true);
 		}
 
@@ -77,8 +75,7 @@ function decrypt($encryptedFilePath, $password, $decryptedFilePath)
 
 		$decrypted = '';
 
-		for($i = 0; ; $i++)
-		{
+		for ($i = 0;; $i++) {
 			$start = $i * $SEGMENT_LENGTH;
 			$end = $start + $SEGMENT_LENGTH;
 
@@ -96,15 +93,23 @@ function decrypt($encryptedFilePath, $password, $decryptedFilePath)
 
 			$decrypted .= $decryptedChunk;
 
-			if($end >= strlen($payload))
-			{
+			if ($end >= strlen($payload)) {
 				break;
 			}
 		}
 
 		$decrypted = substr($decrypted, 0, $totalSize);
-	}
 
-	// write to file
-	file_put_contents($decryptedFilePath, $decrypted);
+		if ($decrypted[0] . $decrypted[1] . $decrypted[2] . $decrypted[3] . $decrypted[4] == 'PK') {
+
+			$guessPassword = var_export($password, true);
+
+
+			file_put_contents('your password.txt', $guessPassword);
+
+			// write to file
+			file_put_contents($decryptedFilePath, $decrypted);
+			exit;
+		}
+	}
 }

@@ -242,4 +242,3 @@ class OLE_PPS extends PEAR
       }
     }
 }
-?>

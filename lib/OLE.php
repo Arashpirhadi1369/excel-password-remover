@@ -606,4 +606,3 @@ class OLE extends PEAR
         return floor($big_date);
     }
 }
-?>

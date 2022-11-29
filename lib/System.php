@@ -1,4 +1,5 @@
 <?php
+
 /**
  * File/Directory manipulation
  *
@@ -22,39 +23,39 @@ require_once 'PEAR.php';
 $GLOBALS['_System_temp_files'] = array();
 
 /**
-* System offers cross platform compatible system functions
-*
-* Static functions for different operations. Should work under
-* Unix and Windows. The names and usage has been taken from its respectively
-* GNU commands. The functions will return (bool) false on error and will
-* trigger the error with the PHP trigger_error() function (you can silence
-* the error by prefixing a '@' sign after the function call, but this
-* is not recommended practice.  Instead use an error handler with
-* {@link set_error_handler()}).
-*
-* Documentation on this class you can find in:
-* http://pear.php.net/manual/
-*
-* Example usage:
-* if (!@System::rm('-r file1 dir1')) {
-*    print "could not delete file1 or dir1";
-* }
-*
-* In case you need to to pass file names with spaces,
-* pass the params as an array:
-*
-* System::rm(array('-r', $file1, $dir1));
-*
-* @category   pear
-* @package    System
-* @author     Tomas V.V. Cox <cox@idecnet.com>
-* @copyright  1997-2006 The PHP Group
-* @license    http://opensource.org/licenses/bsd-license.php New BSD License
-* @version    Release: 1.10.12
-* @link       http://pear.php.net/package/PEAR
-* @since      Class available since Release 0.1
-* @static
-*/
+ * System offers cross platform compatible system functions
+ *
+ * Static functions for different operations. Should work under
+ * Unix and Windows. The names and usage has been taken from its respectively
+ * GNU commands. The functions will return (bool) false on error and will
+ * trigger the error with the PHP trigger_error() function (you can silence
+ * the error by prefixing a '@' sign after the function call, but this
+ * is not recommended practice.  Instead use an error handler with
+ * {@link set_error_handler()}).
+ *
+ * Documentation on this class you can find in:
+ * http://pear.php.net/manual/
+ *
+ * Example usage:
+ * if (!@System::rm('-r file1 dir1')) {
+ *    print "could not delete file1 or dir1";
+ * }
+ *
+ * In case you need to to pass file names with spaces,
+ * pass the params as an array:
+ *
+ * System::rm(array('-r', $file1, $dir1));
+ *
+ * @category   pear
+ * @package    System
+ * @author     Tomas V.V. Cox <cox@idecnet.com>
+ * @copyright  1997-2006 The PHP Group
+ * @license    http://opensource.org/licenses/bsd-license.php New BSD License
+ * @version    Release: 1.10.12
+ * @link       http://pear.php.net/package/PEAR
+ * @since      Class available since Release 0.1
+ * @static
+ */
 class System
 {
     /**
@@ -92,7 +93,7 @@ class System
                 if (empty($a)) {
                     continue;
                 }
-                $argv[$k] = trim($a) ;
+                $argv[$k] = trim($a);
             }
         }
 
@@ -162,7 +163,7 @@ class System
             foreach ($list as $val) {
                 $path = $sPath . DIRECTORY_SEPARATOR . $val;
                 if (is_dir($path) && !is_link($path)) {
-                    $tmp    = System::_dirToStruct($path, $maxinst, $aktinst+1, $silent);
+                    $tmp    = System::_dirToStruct($path, $maxinst, $aktinst + 1, $silent);
                     $struct = array_merge_recursive($struct, $tmp);
                 } else {
                     $struct['files'][] = $path;
@@ -280,7 +281,8 @@ class System
             foreach ($opts[1] as $dir) {
                 $dirstack = array();
                 while ((!file_exists($dir) || !is_dir($dir)) &&
-                        $dir != DIRECTORY_SEPARATOR) {
+                    $dir != DIRECTORY_SEPARATOR
+                ) {
                     array_unshift($dirstack, $dir);
                     $dir = dirname($dir);
                 }
@@ -297,7 +299,7 @@ class System
                 }
             }
         } else {
-            foreach($opts[1] as $dir) {
+            foreach ($opts[1] as $dir) {
                 if ((@file_exists($dir) || !is_dir($dir)) && !mkdir($dir, $mode)) {
                     $ret = false;
                 }
@@ -332,11 +334,11 @@ class System
         for ($i = 0; $i < $count_args; $i++) {
             if ($args[$i] == '>') {
                 $mode = 'wb';
-                $outputfile = $args[$i+1];
+                $outputfile = $args[$i + 1];
                 break;
             } elseif ($args[$i] == '>>') {
                 $mode = 'ab+';
-                $outputfile = $args[$i+1];
+                $outputfile = $args[$i + 1];
                 break;
             } else {
                 $files[] = $args[$i];
@@ -514,8 +516,8 @@ class System
 
         if (OS_WINDOWS) {
             $exe_suffixes = getenv('PATHEXT')
-                                ? explode(PATH_SEPARATOR, getenv('PATHEXT'))
-                                : array('.exe','.bat','.cmd','.com');
+                ? explode(PATH_SEPARATOR, getenv('PATHEXT'))
+                : array('.exe', '.bat', '.cmd', '.com');
             // allow passing a command.exe param
             if (strpos($program, '.') !== false) {
                 array_unshift($exe_suffixes, '');
@@ -579,8 +581,8 @@ class System
         for ($i = 0; $i < $args_count; $i++) {
             switch ($args[$i]) {
                 case '-type':
-                    if (in_array($args[$i+1], array('d', 'f'))) {
-                        if ($args[$i+1] == 'd') {
+                    if (in_array($args[$i + 1], array('d', 'f'))) {
+                        if ($args[$i + 1] == 'd') {
                             $do_files = false;
                         } else {
                             $do_dirs = false;
@@ -589,15 +591,15 @@ class System
                     $i++;
                     break;
                 case '-name':
-                    $name = preg_quote($args[$i+1], '#');
+                    $name = preg_quote($args[$i + 1], '#');
                     // our magic characters ? and * have just been escaped,
                     // so now we change the escaped versions to PCRE operators
                     $name = strtr($name, array('\?' => '.', '\*' => '.*'));
-                    $patterns[] = '('.$name.')';
+                    $patterns[] = '(' . $name . ')';
                     $i++;
                     break;
                 case '-maxdepth':
-                    $depth = $args[$i+1];
+                    $depth = $args[$i + 1];
                     break;
             }
         }
@@ -611,7 +613,7 @@ class System
         }
         if (count($patterns)) {
             $dsq = preg_quote(DIRECTORY_SEPARATOR, '#');
-            $pattern = '#(^|'.$dsq.')'.implode('|', $patterns).'($|'.$dsq.')#';
+            $pattern = '#(^|' . $dsq . ')' . implode('|', $patterns) . '($|' . $dsq . ')#';
             $ret = array();
             $files_count = count($files);
             for ($i = 0; $i < $files_count; $i++) {
